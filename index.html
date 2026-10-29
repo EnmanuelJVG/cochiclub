@@ -1,0 +1,325 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Cochi Club</title>
+<link rel="icon" href="brand/isotipo-rojo.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@500;700;800;900&display=swap" rel="stylesheet">
+<style>
+:root{--p:#EB140C;--bg:#E6E0BF;--tx:#1F1A17;--on:#EB140C;--off:#B9B08A;--f:Montserrat,system-ui,-apple-system,"Segoe UI",sans-serif}
+*{box-sizing:border-box}
+body{margin:0;font:500 16px/1.45 var(--f);color:var(--tx);background:var(--bg);background:color-mix(in srgb,var(--bg),var(--tx) 7%);-webkit-text-size-adjust:100%}
+.hero,.bar{background:var(--p);color:var(--bg)}
+.hero{padding:max(20px,env(safe-area-inset-top)) 20px 64px}
+.hero>div{max-width:428px;margin:auto}
+.bar{display:flex;align-items:center;justify-content:space-between;padding:max(10px,env(safe-area-inset-top)) 16px 10px}
+.lg0{height:34px;display:block}.hero .lg0{margin-bottom:26px}.blk{filter:brightness(0)}
+h1{font-weight:900;font-size:clamp(2rem,9vw,2.8rem);line-height:1;letter-spacing:-.03em;margin:0 0 10px}
+h2,h3{font-weight:900;margin:24px 0 4px;line-height:1.15}
+.wrap{max-width:460px;margin:0 auto;padding:16px 16px 48px}.pull{margin-top:-44px;padding-top:0}
+.sm{font-size:.9rem;opacity:.85;white-space:pre-line;margin:8px 0}
+label{display:block;font-weight:700;font-size:.85rem;margin:14px 0 6px}
+input,textarea{width:100%;min-height:52px;padding:12px 14px;border:2px solid color-mix(in srgb,var(--tx) 25%,transparent);border-radius:14px;background:#fff;color:#1f1a17;font:inherit}
+input:focus,textarea:focus,button:focus-visible{outline:3px solid var(--p);outline-offset:2px}
+input[type=color]{padding:4px}
+.ck{display:flex;gap:10px;align-items:center;font-weight:600}.ck input{width:26px;min-height:26px}
+.btn{display:block;width:100%;min-height:54px;margin-top:16px;border:0;border-radius:16px;background:var(--p);color:var(--bg);font:900 1rem var(--f);cursor:pointer}
+.btn.alt{background:none;color:var(--tx);border:2px solid var(--tx)}.btn:disabled{opacity:.5}
+.lnk{background:none;border:0;color:inherit;text-decoration:underline;font:700 .95rem var(--f);min-height:48px;padding:0;cursor:pointer}
+.err,.ok{background:#fff;padding:8px 12px;border-radius:10px;font-weight:700;margin:12px 0 0}.err{color:#b00020}.ok{color:#176b2c}.err:empty,.ok:empty{display:none}
+.tabs{display:flex;gap:8px;margin:20px 0 4px}
+.tabs button{flex:1;min-height:48px;border:2px solid var(--tx);border-radius:14px;background:none;color:var(--tx);font:800 .9rem var(--f);cursor:pointer}
+.tabs .a{background:var(--tx);color:var(--bg)}
+.row{display:flex;justify-content:space-between;gap:12px;width:100%;padding:14px;margin-top:8px;background:#fff;color:#1f1a17;border:0;border-radius:14px;text-align:left;font:inherit}
+button.row{cursor:pointer;min-height:54px}
+.chips{display:flex;flex-wrap:wrap;gap:8px}
+.chips button{min-height:46px;padding:0 14px;border:2px solid var(--tx);border-radius:14px;background:#fff;color:#1f1a17;font:700 .9rem var(--f);cursor:pointer}
+.cols{display:grid;grid-template-columns:1fr 1fr;gap:0 12px}
+.qr{background:#fff;padding:12px;border-radius:16px;margin-top:16px}.qr svg{width:100%;height:auto;display:block}
+.load{text-align:center;padding:48px 16px;font-weight:800}
+.toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%);background:var(--tx);color:var(--bg);padding:12px 18px;border-radius:99px;font-weight:800;z-index:9}
+/* Tarjeta de sellos */
+.card{margin-top:16px;background:var(--bg);color:var(--tx);border:3px solid var(--tx);border-radius:26px;padding:0 20px 22px;overflow:hidden;box-shadow:0 18px 36px -18px rgba(0,0,0,.5)}
+.chk{height:18px;margin:0 -20px 16px;background:repeating-conic-gradient(var(--tx) 0 25%,var(--bg) 0 50%) 0 0/18px 18px}
+.top{display:flex;justify-content:space-between;align-items:center}.top img{height:30px}
+.bd{background:var(--p);color:var(--bg);font-weight:800;font-size:.75rem;padding:6px 12px;border-radius:99px}
+.card h2{margin:14px 0 0;color:var(--p);font-size:1.6rem;letter-spacing:-.02em}
+.nm{margin:2px 0 0;font-weight:700}
+.card ol{display:grid;gap:10px;list-style:none;margin:18px 0 0;padding:0}
+.card li{aspect-ratio:1;border-radius:50%;display:grid;place-items:center;border:2.5px dashed var(--off);color:var(--off);font-weight:800;font-size:1.4rem}
+.card li.on{border:0;background:var(--on);color:var(--tx)}.card li img{width:68%}
+.card li.pop{animation:pop .5s cubic-bezier(.2,1.6,.4,1)}
+@keyframes pop{from{transform:scale(.4) rotate(-12deg);opacity:0}to{transform:none;opacity:1}}
+.ct{margin:18px 0 0;font-size:1.1rem;font-weight:800}.card p{margin-bottom:0}
+@media (prefers-reduced-motion:reduce){.card li.pop{animation:none}}
+</style>
+</head>
+<body>
+<main id="app"><p class="load">Cargando…</p></main>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.112.3/dist/umd/supabase.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.js"></script>
+<script>
+/* ============ 1) PEGA AQUÍ LOS DOS DATOS DE TU SUPABASE (mira LEEME.md) ============ */
+const SUPABASE_URL = 'PEGA_AQUI_TU_URL';
+const SUPABASE_KEY = 'PEGA_AQUI_TU_CLAVE';
+/* ================================================================================== */
+
+const $ = s => document.querySelector(s), app = $('#app');
+const T = h => { app.innerHTML = h };
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => '&#' + c.charCodeAt(0) + ';');
+const hex = (v, d) => /^#[0-9a-f]{6}$/i.test(v) ? v : d;
+const lum = h => { const n = parseInt(h.slice(1), 16); return (.299 * (n >> 16) + .587 * (n >> 8 & 255) + .114 * (n & 255)) / 255 };
+const fmt = d => new Date(d).toLocaleDateString('es', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' });
+const say = (m, ok) => { const e = $('#e'); if (e) { e.textContent = m; e.className = ok ? 'ok' : 'err' } };
+const toast = m => { const d = document.createElement('div'); d.className = 'toast'; d.textContent = m; document.body.append(d); setTimeout(() => d.remove(), 2200) };
+
+/* ---------- Temas: puedes agregar los tuyos copiando una línea ---------- */
+const DEF = { primary: '#EB140C', background: '#E6E0BF', text: '#1F1A17', stampActive: '#EB140C', stampPending: '#B9B08A', icon: 'cochi' };
+const PRESETS = {
+  cochi:     { label: 'Cochi', ...DEF },
+  halloween: { label: 'Halloween 🎃', primary: '#FF7A00', background: '#1B1226', text: '#F5E9D6', stampActive: '#6C2BD9', stampPending: '#5A4A78', icon: '🎃' },
+  navidad:   { label: 'Navidad 🎄', primary: '#FFD166', background: '#14513A', text: '#FFF8E7', stampActive: '#FFF8E7', stampPending: '#3E8C6B', icon: '🎄' },
+  amor:      { label: 'San Valentín ❤️', primary: '#D6246E', background: '#FBD5DD', text: '#3B1020', stampActive: '#FFFFFF', stampPending: '#E8A5B8', icon: '❤️' },
+  dulce:     { label: 'Cochi Dulce 🍰', primary: '#4B2928', background: '#F1D6DF', text: '#4B2928', stampActive: '#4B2928', stampPending: '#D9B3C0', icon: '🍰' }
+};
+const ICONS = ['cochi', '🐷', '🔥', '🍔', '🌯', '🍗', '🎃', '🎄', '❤️', '⭐', '🍰'];
+const COLS = [['background', 'Fondo'], ['primary', 'Principal'], ['text', 'Texto'], ['stampActive', 'Sello obtenido'], ['stampPending', 'Sello pendiente']];
+const theme = t => { t = t || {}; const o = { icon: String(t.icon || 'cochi').slice(0, 8) }; for (const k in DEF) if (k != 'icon') o[k] = hex(t[k], DEF[k]); return o };
+
+let S = { uid: null, ready: false, rec: false, set: null, ver: null, me: null };
+if (SUPABASE_URL.startsWith('PEGA')) { T('<div class="wrap"><h2>Falta conectar la base de datos</h2><p>Abre <b>index.html</b> y pega tu URL y tu clave de Supabase en las dos líneas marcadas. Los pasos están en LEEME.md.</p></div>'); throw new Error('Sin configurar') }
+const sb = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+async function load() {
+  const [a, b] = await Promise.all([
+    sb.from('program_settings').select('*').single(),
+    sb.from('loyalty_program_versions').select('*').order('version', { ascending: false }).limit(1).single()]);
+  if (a.error || b.error) throw (a.error || b.error);
+  S.set = a.data; S.ver = b.data;
+}
+function applyTheme() {
+  const t = theme(S.set.theme), r = document.documentElement.style;
+  r.setProperty('--p', t.primary); r.setProperty('--bg', t.background); r.setProperty('--tx', t.text);
+  r.setProperty('--on', t.stampActive); r.setProperty('--off', t.stampPending);
+}
+const logo = () => `<img class="lg0${lum(theme(S.set.theme).background) < .5 ? ' blk' : ''}" src="brand/logotipo-crema.png" alt="Cochi">`;
+
+/* ---------- La tarjeta (se usa en el cliente, en el panel y en la vista previa) ---------- */
+function card(o) {
+  const t = theme(o.theme || S.set.theme), done = o.stamps >= o.required, left = o.required - o.stamps;
+  const ic = t.icon == 'cochi' ? `<img src="brand/isotipo-${lum(t.stampActive) > .6 ? 'rojo' : 'crema'}.png" alt="">` : esc(t.icon);
+  let dots = '';
+  for (let i = 0; i < o.required; i++) { const on = i < o.stamps; dots += `<li class="${on ? 'on' : ''}${on && o.pop && i == o.stamps - 1 ? ' pop' : ''}">${on ? ic : i + 1}</li>` }
+  const prize = o.reward ? ` Premio: <b>${esc(o.reward)}</b>.` : '';
+  const msg = done
+    ? (o.reward ? `¡Tarjeta completa! Tu premio: <b>${esc(o.reward)}</b>. Avísanos en tu próximo pedido para canjearlo.` : '¡Tarjeta completa! Pronto te contamos cuál es tu premio.')
+    : `${left == 1 ? 'Te falta 1 sello' : 'Te faltan ' + left + ' sellos'} para completar tu tarjeta.${prize}`;
+  return `<section class="card" aria-label="Tarjeta: ${o.stamps} de ${o.required} sellos" style="--p:${t.primary};--bg:${t.background};--tx:${t.text};--on:${t.stampActive};--off:${t.stampPending}">
+<div class="chk"></div><div class="top"><img src="brand/logotipo-${lum(t.background) > .5 ? 'rojo' : 'crema'}.png" alt="Cochi">${done ? '<span class="bd">¡Premio listo!</span>' : ''}</div>
+<h2>${esc(o.programName)}</h2>${o.name ? `<p class="nm">${esc(o.name)}</p>` : ''}
+<ol style="grid-template-columns:repeat(${o.required <= 8 ? 4 : o.required <= 15 ? 5 : 6},1fr)">${dots}</ol>
+<p class="ct">${o.stamps} de ${o.required} sellos</p><p>${msg}</p></section>`;
+}
+
+const msgErr = e => {
+  const m = (e.message || '').toLowerCase();
+  if (m.includes('invalid login')) return 'Correo o contraseña incorrectos.';
+  if (m.includes('already') || m.includes('database error')) return 'No pudimos crear la cuenta. Revisa que el correo y el teléfono no estén ya registrados.';
+  if (m.includes('password')) return 'La contraseña debe tener al menos 8 caracteres.';
+  if (m.includes('rate') || m.includes('seconds')) return 'Demasiados intentos. Espera un minuto y vuelve a probar.';
+  return e.message || 'Algo salió mal. Intenta de nuevo.';
+};
+
+/* ======================= CLIENTE: bienvenida, registro, entrar ======================= */
+function welcome(mode = 'reg') {
+  const s = S.set, v = S.ver, reg = mode == 'reg';
+  T(`<header class="hero"><div>${logo()}<h1>${esc(s.welcome_title)}</h1><p>${esc(s.instructions)}</p></div></header>
+<div class="wrap pull">${card({ programName: s.program_name, name: 'Tu nombre', stamps: Math.min(3, v.stamps_required - 1), required: v.stamps_required, reward: v.reward_name })}
+<p class="sm">Así se verá tu tarjeta.</p>
+<div class="tabs"><button data-m="reg" class="${reg ? 'a' : ''}">Crear mi tarjeta</button><button data-m="in" class="${reg ? '' : 'a'}">Ya tengo cuenta</button></div>
+<form id="f">${reg ? `
+<label>Nombre y apellido<input name="n" required autocomplete="name"></label>
+<label>Teléfono<input name="t" type="tel" required autocomplete="tel"></label>
+<label>Correo<input name="m" type="email" required autocomplete="email"></label>
+<label>Dirección de entrega<textarea name="d" rows="2" required autocomplete="street-address"></textarea></label>
+${s.extra_id_visible ? `<label>${esc(s.extra_id_label)}<input name="x" ${s.extra_id_required ? 'required' : ''}></label>` : ''}
+<label>Contraseña (mínimo 8 caracteres)<input name="p" type="password" minlength="8" required autocomplete="new-password"></label>
+<label class="ck"><input type="checkbox" required> Acepto las condiciones del programa</label>
+<details><summary>Ver condiciones</summary><p class="sm">${esc(s.terms) || 'Usamos tus datos solo para el programa de fidelización de Cochi: darte tu tarjeta y avisarte de tus premios.'}</p></details>` : `
+<label>Correo<input name="m" type="email" required autocomplete="email"></label>
+<label>Contraseña<input name="p" type="password" required autocomplete="current-password"></label>`}
+<p id="e"></p><button class="btn" id="go">${reg ? 'Crear mi tarjeta' : 'Entrar'}</button></form>
+${reg ? '' : '<button class="lnk" id="fg">Olvidé mi contraseña</button>'}</div>`);
+  document.querySelectorAll('[data-m]').forEach(b => b.onclick = () => welcome(b.dataset.m));
+  $('#f').onsubmit = async e => {
+    e.preventDefault(); const f = new FormData(e.target), go = $('#go'); go.disabled = true; say('');
+    const email = f.get('m').trim();
+    const r = reg
+      ? await sb.auth.signUp({ email, password: f.get('p'), options: { data: { full_name: f.get('n').trim(), phone: f.get('t').trim(), address: f.get('d').trim(), extra_id: (f.get('x') || '').trim() } } })
+      : await sb.auth.signInWithPassword({ email, password: f.get('p') });
+    go.disabled = false;
+    if (r.error) return say(msgErr(r.error));
+    if (reg && !r.data.session) say('Te enviamos un correo para confirmar tu cuenta. Ábrelo y luego entra con "Ya tengo cuenta".', true);
+  };
+  if (!reg) $('#fg').onclick = async () => {
+    const m = prompt('¿Con qué correo te registraste?'); if (!m) return;
+    const { error } = await sb.auth.resetPasswordForEmail(m.trim(), { redirectTo: location.origin + location.pathname });
+    alert(error ? msgErr(error) : 'Listo. Si ese correo está registrado, te enviamos un enlace para cambiar la contraseña.');
+  };
+}
+function newPass() {
+  S.rec = true;
+  T(`<header class="hero"><div>${logo()}<h1>Nueva contraseña</h1></div></header><div class="wrap pull"><form id="f"><label>Escribe tu nueva contraseña<input name="p" type="password" minlength="8" required autocomplete="new-password"></label><p id="e"></p><button class="btn">Guardar</button></form></div>`);
+  $('#f').onsubmit = async e => {
+    e.preventDefault();
+    const { error } = await sb.auth.updateUser({ password: new FormData(e.target).get('p') });
+    if (error) return say(msgErr(error));
+    S.rec = false; boot();
+  };
+}
+
+/* ======================= CLIENTE: su tarjeta ======================= */
+async function home() {
+  const [c, t] = await Promise.all([
+    sb.from('loyalty_cards').select('*').eq('customer_id', S.uid).order('created_at', { ascending: false }),
+    sb.from('stamp_transactions').select('kind,created_at').eq('customer_id', S.uid).order('created_at', { ascending: false }).limit(8)]);
+  const cards = c.data || [], cur = cards.find(x => x.status != 'redeemed'), won = cards.filter(x => x.status == 'redeemed').length;
+  const n = cur ? cur.stamps_count : 0, req = cur ? cur.stamps_required : S.ver.stamps_required, rw = (cur && cur.reward_name) || S.ver.reward_name;
+  let seen = 0; try { seen = +localStorage.getItem('cs' + S.uid) || 0; localStorage.setItem('cs' + S.uid, n) } catch { }
+  const list = (t.data || []).map(x => `<div class="row"><span>${x.kind == 'earn' ? 'Sello agregado' : 'Sello corregido'}</span><span>${fmt(x.created_at)}</span></div>`).join('');
+  T(`<header class="hero"><div>${logo()}<h1>Hola, ${esc(S.me.full_name.split(' ')[0])}</h1></div></header>
+<div class="wrap pull">${card({ programName: S.set.program_name, name: S.me.full_name, stamps: n, required: req, reward: rw, pop: n > seen })}
+${won ? `<p class="sm">Premios canjeados: <b>${won}</b></p>` : ''}
+<button class="btn" id="rf">Actualizar mi tarjeta</button>
+<h3>Mis últimos sellos</h3>${list || '<p class="sm">Cuando hagas tu primer pedido, aquí verás tus sellos.</p>'}
+<button class="btn alt" id="out">Cerrar sesión</button></div>`);
+  $('#rf').onclick = home; $('#out').onclick = () => sb.auth.signOut();
+}
+
+/* ======================= PANEL: personal de Cochi ======================= */
+function admin(tab = 'c') {
+  const adm = S.me.role == 'admin';
+  T(`<div class="bar">${logo()}<button class="lnk" id="out">Salir</button></div>
+<div class="wrap"><div class="tabs"><button data-t="c">Clientes</button>${adm ? '<button data-t="s">Ajustes</button>' : ''}<button data-t="i">Invitar</button></div><div id="v"></div></div>`);
+  const go = t => { document.querySelectorAll('[data-t]').forEach(b => b.classList.toggle('a', b.dataset.t == t)); ({ c: clients, s: settings, i: invite })[t]() };
+  document.querySelectorAll('[data-t]').forEach(b => b.onclick = () => go(b.dataset.t));
+  $('#out').onclick = () => sb.auth.signOut(); go(tab);
+}
+
+function clients() {
+  $('#v').innerHTML = `<input id="q" type="search" placeholder="Buscar por nombre, teléfono o correo" autocomplete="off" style="margin-top:12px"><div id="res"></div>`;
+  let tm;
+  const run = async () => {
+    const t = $('#q').value.replace(/[,()%*]/g, ' ').trim();
+    let q = sb.from('profiles').select('id,full_name,phone').eq('role', 'customer').order('created_at', { ascending: false }).limit(15);
+    if (t) q = q.or(`full_name.ilike.*${t}*,phone.ilike.*${t}*,email.ilike.*${t}*`);
+    const { data, error } = await q;
+    $('#res').innerHTML = error ? `<p class="err">${esc(error.message)}</p>`
+      : data.length ? data.map(p => `<button class="row" data-id="${p.id}"><b>${esc(p.full_name)}</b><span>${esc(p.phone || '')}</span></button>`).join('')
+      : '<p class="sm">No encontramos clientes con esa búsqueda.</p>';
+    document.querySelectorAll('[data-id]').forEach(b => b.onclick = () => customer(b.dataset.id));
+  };
+  $('#q').oninput = () => { clearTimeout(tm); tm = setTimeout(run, 300) }; run();
+}
+
+async function customer(id, pop) {
+  const RID = crypto.randomUUID(); // si se repite el toque, no se suma dos veces
+  const [p, c] = await Promise.all([
+    sb.from('profiles').select('*').eq('id', id).single(),
+    sb.from('loyalty_cards').select('*').eq('customer_id', id).neq('status', 'redeemed').maybeSingle()]);
+  const cur = c.data, pr = p.data; let tx = [];
+  if (cur) tx = (await sb.from('stamp_transactions').select('*').eq('card_id', cur.id).order('created_at', { ascending: false })).data || [];
+  const rev = new Set(tx.filter(x => x.reverses_id).map(x => x.reverses_id)), last = tx.find(x => x.kind == 'earn' && !rev.has(x.id));
+  const n = cur ? cur.stamps_count : 0, req = cur ? cur.stamps_required : S.ver.stamps_required;
+  const rw = (cur && cur.reward_name) || S.ver.reward_name, done = cur && cur.status == 'reward_available';
+  $('#v').innerHTML = `<button class="lnk" id="bk">← Volver</button><h2 style="margin-top:0">${esc(pr.full_name)}</h2>
+<p class="sm">${esc(pr.phone || '')} · ${esc(pr.email || '')}\n${esc(pr.address || '')}</p>
+${card({ programName: S.set.program_name, stamps: n, required: req, reward: rw, pop })}
+${done ? `<button class="btn" id="rd">Entregar premio${rw ? ': ' + esc(rw) : ''}</button>`
+    : `<label>Número de pedido (opcional)<input id="ref"></label><button class="btn" id="ad">Agregar sello</button>`}
+${last ? '<button class="btn alt" id="un">Quitar el último sello</button>' : ''}
+<p id="e"></p><h3>Movimientos de esta tarjeta</h3>
+${tx.map(x => `<div class="row"><span>${x.kind == 'earn' ? '+1' : '−1'} ${esc(x.order_ref || x.note || '')}</span><span>${fmt(x.created_at)}</span></div>`).join('') || '<p class="sm">Todavía no tiene sellos.</p>'}`;
+  const run = async (fn, args, msg) => {
+    const { error } = await sb.rpc(fn, args);
+    if (error) return say(error.message);
+    toast(msg); customer(id, fn == 'add_stamp');
+  };
+  $('#bk').onclick = () => admin('c');
+  if ($('#ad')) $('#ad').onclick = () => confirm(`¿Agregar un sello a ${pr.full_name}?`) &&
+    run('add_stamp', { p_customer: id, p_request_id: RID, p_order_ref: $('#ref').value || null, p_note: null }, 'Sello agregado ✔');
+  if ($('#rd')) $('#rd').onclick = () => confirm(`¿Entregar el premio a ${pr.full_name}? Esto no se puede deshacer.`) &&
+    run('redeem_reward', { p_card_id: cur.id }, 'Premio entregado ✔');
+  if ($('#un')) $('#un').onclick = () => { const why = prompt('¿Por qué quitas este sello?'); if (why) run('reverse_stamp', { p_tx_id: last.id, p_request_id: crypto.randomUUID(), p_reason: why }, 'Sello quitado') };
+}
+
+function settings() {
+  const s = S.set, v = S.ver; let th = theme(s.theme);
+  $('#v').innerHTML = `<div id="pv"></div><form id="f">
+<h3>Programa</h3>
+<label>Nombre del programa<input name="pn" value="${esc(s.program_name)}" required></label>
+<label>Cuántos sellos completan la tarjeta<input name="n" type="number" min="2" max="24" value="${v.stamps_required}" required></label>
+<label>Premio (vacío = aún sin definir)<input name="rw" value="${esc(v.reward_name || '')}"></label>
+<label class="ck"><input type="checkbox" name="en" ${v.enabled ? 'checked' : ''}> Programa activo</label>
+<p class="sm">Si cambias los sellos o el premio, vale para las tarjetas nuevas. Las ya empezadas conservan su regla.</p>
+<h3>Tema</h3><div class="chips" id="pr">${Object.entries(PRESETS).map(([k, p]) => `<button type="button" data-k="${k}">${p.label}</button>`).join('')}</div>
+<h3>Colores</h3><div class="cols">${COLS.map(([k, l]) => `<label>${l}<input type="color" data-c="${k}" value="${th[k]}"></label>`).join('')}</div>
+<h3>Icono del sello</h3><div class="chips" id="ic">${ICONS.map(i => `<button type="button" data-i="${esc(i)}">${i == 'cochi' ? '<img src="brand/isotipo-rojo.png" alt="Cochi" height="22">' : esc(i)}</button>`).join('')}</div>
+<label>…o escribe tu propio emoji<input id="ci" maxlength="4"></label>
+<h3>Textos</h3>
+<label>Título de bienvenida<input name="wt" value="${esc(s.welcome_title)}"></label>
+<label>Cómo funciona<textarea name="ins" rows="3">${esc(s.instructions)}</textarea></label>
+<label>Condiciones del programa<textarea name="tm" rows="4">${esc(s.terms)}</textarea></label>
+<p id="e"></p><button class="btn">Guardar cambios</button></form>`;
+  const f = $('#f');
+  const pv = () => { const n = Math.min(24, Math.max(2, +f.n.value || 8)); $('#pv').innerHTML = card({ programName: f.pn.value, name: 'Nombre del cliente', stamps: Math.min(3, n - 1), required: n, reward: f.rw.value, theme: th }) };
+  $('#pr').onclick = e => { const k = e.target.closest('[data-k]')?.dataset.k; if (!k) return; th = theme(PRESETS[k]); document.querySelectorAll('[data-c]').forEach(i => i.value = th[i.dataset.c]); pv() };
+  document.querySelectorAll('[data-c]').forEach(i => i.oninput = () => { th[i.dataset.c] = i.value });
+  $('#ic').onclick = e => { const i = e.target.closest('[data-i]')?.dataset.i; if (i) { th.icon = i; pv() } };
+  $('#ci').oninput = e => { if (e.target.value) th.icon = e.target.value };
+  f.oninput = pv; pv();
+  f.onsubmit = async e => {
+    e.preventDefault(); const b = f.querySelector('.btn'); b.disabled = true;
+    const n = +f.n.value, rw = f.rw.value.trim(), en = f.en.checked;
+    let { error } = await sb.from('program_settings').update({ program_name: f.pn.value.trim(), welcome_title: f.wt.value.trim(), instructions: f.ins.value.trim(), terms: f.tm.value.trim(), theme: th }).eq('id', true);
+    if (!error && (n !== v.stamps_required || rw !== (v.reward_name || '') || en !== v.enabled))
+      ({ error } = await sb.rpc('publish_program_version', { p_stamps: n, p_reward_name: rw, p_reward_description: null, p_enabled: en }));
+    b.disabled = false; if (error) return say(error.message);
+    await load(); applyTheme(); toast('Cambios guardados ✔'); settings();
+  };
+}
+
+function invite() {
+  const link = location.origin + location.pathname;
+  $('#v').innerHTML = `<h3>Tu link de registro</h3><p class="sm">Compártelo por WhatsApp o imprime el QR. Quien lo abra podrá crear su tarjeta.</p>
+<div class="row"><span style="word-break:break-all">${esc(link)}</span></div><button class="btn" id="cp">Copiar link</button><div id="qr" class="qr"></div>`;
+  $('#cp').onclick = () => navigator.clipboard.writeText(link).then(() => toast('Link copiado ✔'), () => prompt('Copia el link:', link));
+  try {
+    const q = qrcode(0, 'M'); q.addData(link); q.make(); $('#qr').innerHTML = q.createSvgTag(8, 4);
+    const s = $('#qr svg'); if (!s.getAttribute('viewBox')) s.setAttribute('viewBox', `0 0 ${parseInt(s.getAttribute('width'))} ${parseInt(s.getAttribute('height'))}`);
+    s.removeAttribute('width'); s.removeAttribute('height');
+  } catch { $('#qr').textContent = 'No se pudo dibujar el QR. Pega el link en cualquier generador de QR gratuito.' }
+}
+
+/* ======================= Arranque ======================= */
+async function boot() {
+  if (S.rec) return;
+  T('<p class="load">Cargando…</p>');
+  try { await load() } catch (e) { return T(`<div class="wrap"><h2>No pudimos conectar</h2><p>${esc(e.message)}</p><p class="sm">Revisa que la URL y la clave estén bien pegadas y que ya ejecutaste el archivo 1-base-de-datos.sql.</p></div>`) }
+  applyTheme();
+  if (!S.uid) return welcome();
+  const { data: me } = await sb.from('profiles').select('*').eq('id', S.uid).single();
+  if (!me || me.suspended) return T(`<div class="wrap"><h2>Cuenta en pausa</h2><p>Escríbenos por WhatsApp y lo resolvemos.</p><button class="btn alt" id="out">Cerrar sesión</button></div>`), $('#out').onclick = () => sb.auth.signOut();
+  S.me = me; me.role == 'customer' ? home() : admin();
+}
+sb.auth.onAuthStateChange((ev, s) => {
+  if (ev == 'PASSWORD_RECOVERY') return setTimeout(newPass, 0);
+  const id = s?.user?.id || null;
+  if (S.ready && id === S.uid) return; // evita recargar la pantalla al volver a la pestaña
+  S.ready = true; S.uid = id; setTimeout(boot, 0);
+});
+</script>
+</body>
+</html>
