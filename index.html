@@ -12,8 +12,8 @@
 *{box-sizing:border-box}
 body{margin:0;font:500 16px/1.45 var(--f);color:var(--tx);background:var(--bg);background:color-mix(in srgb,var(--bg),var(--tx) 7%);-webkit-text-size-adjust:100%}
 .hero,.bar{background:var(--p);color:var(--bg)}
-.hero{padding:max(20px,env(safe-area-inset-top)) 20px 64px}
-.hero>div{max-width:428px;margin:auto}
+.hero{position:relative;overflow:hidden;border-radius:0 0 36px 36px;padding:max(20px,env(safe-area-inset-top)) 20px 64px}
+.hero>div{position:relative;max-width:428px;margin:auto}
 .bar{display:flex;align-items:center;justify-content:space-between;padding:max(10px,env(safe-area-inset-top)) 16px 10px}
 .lg0{height:34px;display:block}.hero .lg0{margin-bottom:26px}.blk{filter:brightness(0)}
 h1{font-weight:900;font-size:clamp(2rem,9vw,2.8rem);line-height:1;letter-spacing:-.03em;margin:0 0 10px}
@@ -39,21 +39,71 @@ button.row{cursor:pointer;min-height:54px}
 .cols{display:grid;grid-template-columns:1fr 1fr;gap:0 12px}
 .qr{background:#fff;padding:12px;border-radius:16px;margin-top:16px}.qr svg{width:100%;height:auto;display:block}
 .load{text-align:center;padding:48px 16px;font-weight:800}
-.toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%);background:var(--tx);color:var(--bg);padding:12px 18px;border-radius:99px;font-weight:800;z-index:9}
+.toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%);background:var(--tx);color:var(--bg);padding:12px 18px;border-radius:99px;font-weight:800;z-index:99;animation:toast .35s cubic-bezier(.2,1.4,.4,1) both}
 /* Tarjeta de sellos */
-.card{margin-top:16px;background:var(--bg);color:var(--tx);border:3px solid var(--tx);border-radius:26px;padding:0 20px 22px;overflow:hidden;box-shadow:0 18px 36px -18px rgba(0,0,0,.5)}
+.card{margin-top:16px;background:var(--bg);color:var(--tx);border:2px solid color-mix(in srgb,var(--tx) 20%,transparent);border-radius:28px;padding:0 20px 22px;overflow:hidden;box-shadow:0 18px 36px -18px rgba(0,0,0,.5)}
 .chk{height:18px;margin:0 -20px 16px;background:repeating-conic-gradient(var(--tx) 0 25%,var(--bg) 0 50%) 0 0/18px 18px}
 .top{display:flex;justify-content:space-between;align-items:center}.top img{height:30px}
 .bd{background:var(--p);color:var(--bg);font-weight:800;font-size:.75rem;padding:6px 12px;border-radius:99px}
 .card h2{margin:14px 0 0;color:var(--p);font-size:1.6rem;letter-spacing:-.02em}
 .nm{margin:2px 0 0;font-weight:700}
 .card ol{display:grid;gap:10px;list-style:none;margin:18px 0 0;padding:0}
-.card li{aspect-ratio:1;border-radius:50%;display:grid;place-items:center;border:2.5px dashed var(--off);color:var(--off);font-weight:800;font-size:1.4rem}
-.card li.on{border:0;background:var(--on);color:var(--tx)}.card li img{width:68%}
-.card li.pop{animation:pop .5s cubic-bezier(.2,1.6,.4,1)}
+.card li{position:relative;aspect-ratio:1;border-radius:50%;display:grid;place-items:center;border:2.5px dashed var(--off);color:var(--off);font-weight:800;font-size:1.4rem}
+.card li.on{border:0;background:var(--on);color:var(--tx);animation:pop .55s cubic-bezier(.2,1.6,.4,1) var(--d,0s) both}.card li img{width:68%}
+
 @keyframes pop{from{transform:scale(.4) rotate(-12deg);opacity:0}to{transform:none;opacity:1}}
 .ct{margin:18px 0 0;font-size:1.1rem;font-weight:800}.card p{margin-bottom:0}
-@media (prefers-reduced-motion:reduce){.card li.pop{animation:none}}
+@media (prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.01ms!important;animation-delay:0s!important;transition-duration:.01ms!important}}
+/* ---- Movimiento ---- */
+@keyframes rise{from{opacity:0;transform:translateY(18px)}to{opacity:1;transform:none}}
+@keyframes drift{from{transform:translate(0,0) rotate(-6deg)}to{transform:translate(-20px,16px) rotate(6deg)}}
+@keyframes ring{from{transform:scale(.7);opacity:.9}to{transform:scale(1.8);opacity:0}}
+@keyframes tick{to{transform:translateX(-50%)}}
+@keyframes toast{from{transform:translate(-50%,30px);opacity:0}to{transform:translate(-50%,0);opacity:1}}
+@keyframes bob{50%{transform:translateY(-10px)}}
+@keyframes logo{from{transform:scale(0) rotate(-25deg)}to{transform:none}}
+@keyframes flick{50%{transform:scale(1.05,.97) rotate(1.5deg)}}
+@keyframes belt{to{background-position:56px 0}}
+@keyframes cf{to{transform:translate(var(--x),calc(var(--y) + 150px)) rotate(var(--r));opacity:0}}
+.hero>div>*,.wrap>*,#v>*{animation:rise .55s cubic-bezier(.2,.7,.2,1) backwards}
+.hero>div>*:nth-child(2),.wrap>*:nth-child(2){animation-delay:.1s}
+.hero>div>*:nth-child(3),.wrap>*:nth-child(3){animation-delay:.2s}
+.wrap>*:nth-child(n+4){animation-delay:.3s}
+body.hold #app *{animation-play-state:paused!important}
+.hero::after,.intro::after{content:"";position:absolute;right:-70px;top:-40px;width:280px;height:280px;background:url(brand/isotipo-crema.png) center/contain no-repeat;opacity:.1;animation:drift 9s ease-in-out infinite alternate;pointer-events:none}
+.tick{overflow:hidden;white-space:nowrap;margin:24px -20px 0;font-weight:900;letter-spacing:.16em;font-size:.78rem;text-transform:uppercase}
+.tick div{display:inline-block;animation:tick 20s linear infinite}.tick span{padding-right:1.2em}
+.btn,.tabs button,.chips button,.row,.lnk{transition:transform .15s ease,background .2s,color .2s,opacity .2s}
+.btn:active,.tabs button:active,.chips button:active,button.row:active{transform:scale(.97)}
+@media (hover:hover){.btn:hover{transform:translateY(-2px)}}
+input,textarea{transition:border-color .2s,box-shadow .2s}
+input:focus,textarea:focus{outline:none;border-color:var(--p);box-shadow:0 0 0 4px color-mix(in srgb,var(--p) 25%,transparent)}
+.card li.new{animation-delay:.7s}
+.card li.new::after{content:"";position:absolute;inset:-4px;border-radius:50%;border:3px solid var(--on);animation:ring .9s ease-out .7s both}
+.cf{position:fixed;width:9px;height:14px;border-radius:2px;z-index:70;pointer-events:none;animation:cf 1.2s cubic-bezier(.1,.7,.3,1) .75s both}
+/* ---- Entrada (splash) ---- */
+#sp{position:fixed;inset:0;z-index:60;display:grid;place-items:center;background:#EB140C;color:#E6E0BF;overflow:hidden;transition:transform .7s cubic-bezier(.76,0,.24,1)}
+#sp.out{transform:translateY(-100%)}
+#sp .wm{position:absolute;width:130vmax;max-width:none;opacity:.07;animation:drift 8s ease-in-out infinite alternate}
+#sp .st{position:relative;text-align:center}
+#sp .spi{width:112px;display:block;margin:0 auto;animation:logo 1s cubic-bezier(.2,1.5,.4,1) both,flick 1.6s ease-in-out 1s infinite}
+#sp .spl{width:170px;display:block;margin:18px auto 0;animation:rise .6s .4s both}
+#sp .spn{display:inline-block;margin-top:14px;padding:6px 16px 6px 20px;border-radius:99px;background:#E6E0BF;color:#EB140C;font-weight:900;font-size:.8rem;letter-spacing:.3em;text-transform:uppercase;opacity:0;transform:translateY(10px) scale(.9);transition:opacity .5s,transform .5s cubic-bezier(.2,1.5,.4,1)}
+#sp.show .spn{opacity:1;transform:none}
+#sp .spb{position:absolute;left:0;right:0;bottom:0;height:28px;background:repeating-conic-gradient(#1F1A17 0 25%,#E6E0BF 0 50%) 0 0/28px 28px;animation:belt 1.2s linear infinite}
+/* ---- Introducción de 3 pantallas ---- */
+.intro{position:relative;min-height:100vh;min-height:100dvh;display:flex;flex-direction:column;overflow:hidden;background:var(--p);color:var(--bg)}
+.isk{align-self:flex-end;position:relative;z-index:1;padding:max(16px,env(safe-area-inset-top)) 24px 0;min-height:56px}
+.trk{position:relative;flex:1;display:flex;transition:transform .6s cubic-bezier(.7,0,.2,1)}
+.sl{min-width:100%;padding:16px 28px;display:flex;flex-direction:column;justify-content:center}
+.sl>*{opacity:0}.sl.on>*{animation:rise .6s cubic-bezier(.2,.7,.2,1) both}
+.sl.on>*:nth-child(2){animation-delay:.1s}.sl.on>*:nth-child(3){animation-delay:.2s}
+.sl h2{font-size:clamp(2.2rem,11vw,3.3rem);letter-spacing:-.03em;margin:22px 0 8px}.sl p{font-size:1.1rem;margin:0}
+.big{font-size:5rem;line-height:1}.bob{animation:bob 2.4s ease-in-out infinite}
+.mini{display:flex;gap:10px}.mini b{width:46px;height:46px;border-radius:50%;display:grid;place-items:center;background:var(--bg);color:var(--p);font-size:1.3rem;opacity:0}
+.sl.on .mini b{animation:pop .5s cubic-bezier(.2,1.6,.4,1) calc(.4s + var(--k)*.14s) both}
+.dots{display:flex;gap:8px;padding:0 28px;position:relative}.dots i{width:8px;height:8px;border-radius:9px;background:currentColor;opacity:.35;transition:width .3s,opacity .3s}.dots i.a{width:28px;opacity:1}
+.ibt{position:relative;text-align:center;padding:20px 28px max(28px,env(safe-area-inset-bottom))}.btn.inv{background:var(--bg);color:var(--p)}
 </style>
 </head>
 <body>
@@ -111,12 +161,12 @@ function card(o) {
   const t = theme(o.theme || S.set.theme), done = o.stamps >= o.required, left = o.required - o.stamps;
   const ic = t.icon == 'cochi' ? `<img src="brand/isotipo-${lum(t.stampActive) > .6 ? 'rojo' : 'crema'}.png" alt="">` : esc(t.icon);
   let dots = '';
-  for (let i = 0; i < o.required; i++) { const on = i < o.stamps; dots += `<li class="${on ? 'on' : ''}${on && o.pop && i == o.stamps - 1 ? ' pop' : ''}">${on ? ic : i + 1}</li>` }
+  for (let i = 0; i < o.required; i++) { const on = i < o.stamps; dots += `<li class="${on ? 'on' : ''}${on && o.pop && i == o.stamps - 1 ? ' new' : ''}" style="--d:${Math.min(i, 12) * 70}ms">${on ? ic : i + 1}</li>` }
   const prize = o.reward ? ` Premio: <b>${esc(o.reward)}</b>.` : '';
   const msg = done
     ? (o.reward ? `¡Tarjeta completa! Tu premio: <b>${esc(o.reward)}</b>. Avísanos en tu próximo pedido para canjearlo.` : '¡Tarjeta completa! Pronto te contamos cuál es tu premio.')
     : `${left == 1 ? 'Te falta 1 sello' : 'Te faltan ' + left + ' sellos'} para completar tu tarjeta.${prize}`;
-  return `<section class="card" aria-label="Tarjeta: ${o.stamps} de ${o.required} sellos" style="--p:${t.primary};--bg:${t.background};--tx:${t.text};--on:${t.stampActive};--off:${t.stampPending}">
+  return `<section class="card${done && o.pop ? ' win' : ''}" aria-label="Tarjeta: ${o.stamps} de ${o.required} sellos" style="--p:${t.primary};--bg:${t.background};--tx:${t.text};--on:${t.stampActive};--off:${t.stampPending}">
 <div class="chk"></div><div class="top"><img src="brand/logotipo-${lum(t.background) > .5 ? 'rojo' : 'crema'}.png" alt="Cochi">${done ? '<span class="bd">¡Premio listo!</span>' : ''}</div>
 <h2>${esc(o.programName)}</h2>${o.name ? `<p class="nm">${esc(o.name)}</p>` : ''}
 <ol style="grid-template-columns:repeat(${o.required <= 8 ? 4 : o.required <= 15 ? 5 : 6},1fr)">${dots}</ol>
@@ -125,6 +175,7 @@ function card(o) {
 
 const msgErr = e => {
   const m = (e.message || '').toLowerCase();
+  if (m.includes('not confirmed')) return 'Tu cuenta aún no está activada. Escríbenos por WhatsApp y la activamos.';
   if (m.includes('invalid login')) return 'Correo o contraseña incorrectos.';
   if (m.includes('already') || m.includes('database error')) return 'No pudimos crear la cuenta. Revisa que el correo y el teléfono no estén ya registrados.';
   if (m.includes('password')) return 'La contraseña debe tener al menos 8 caracteres.';
@@ -135,15 +186,15 @@ const msgErr = e => {
 /* ======================= CLIENTE: bienvenida, registro, entrar ======================= */
 function welcome(mode = 'reg') {
   const s = S.set, v = S.ver, reg = mode == 'reg';
-  T(`<header class="hero"><div>${logo()}<h1>${esc(s.welcome_title)}</h1><p>${esc(s.instructions)}</p></div></header>
+  T(`<header class="hero"><div>${logo()}<h1>${esc(s.welcome_title)}</h1><p>${esc(s.instructions)}</p></div>${tick()}</header>
 <div class="wrap pull">${card({ programName: s.program_name, name: 'Tu nombre', stamps: Math.min(3, v.stamps_required - 1), required: v.stamps_required, reward: v.reward_name })}
 <p class="sm">Así se verá tu tarjeta.</p>
 <div class="tabs"><button data-m="reg" class="${reg ? 'a' : ''}">Crear mi tarjeta</button><button data-m="in" class="${reg ? '' : 'a'}">Ya tengo cuenta</button></div>
 <form id="f">${reg ? `
-<label>Nombre y apellido<input name="n" required autocomplete="name"></label>
-<label>Teléfono<input name="t" type="tel" required autocomplete="tel"></label>
-<label>Correo<input name="m" type="email" required autocomplete="email"></label>
-<label>Dirección de entrega<textarea name="d" rows="2" required autocomplete="street-address"></textarea></label>
+<label>Nombre y apellido<input name="n" required minlength="3" placeholder="María Pérez" autocomplete="name"></label>
+<label>Teléfono<input name="t" type="tel" inputmode="tel" required minlength="7" maxlength="20" placeholder="0424 1234567" autocomplete="tel"></label>
+<label>Correo<input name="m" type="email" required placeholder="tucorreo@gmail.com" autocomplete="email"></label>
+<label>Dirección de entrega<textarea name="d" rows="2" required minlength="8" placeholder="Calle, casa o edificio, punto de referencia" autocomplete="street-address"></textarea></label>
 ${s.extra_id_visible ? `<label>${esc(s.extra_id_label)}<input name="x" ${s.extra_id_required ? 'required' : ''}></label>` : ''}
 <label>Contraseña (mínimo 8 caracteres)<input name="p" type="password" minlength="8" required autocomplete="new-password"></label>
 <label class="ck"><input type="checkbox" required> Acepto las condiciones del programa</label>
@@ -155,13 +206,18 @@ ${reg ? '' : '<button class="lnk" id="fg">Olvidé mi contraseña</button>'}</div
   document.querySelectorAll('[data-m]').forEach(b => b.onclick = () => welcome(b.dataset.m));
   $('#f').onsubmit = async e => {
     e.preventDefault(); const f = new FormData(e.target), go = $('#go'); go.disabled = true; say('');
-    const email = f.get('m').trim();
+    const email = f.get('m').trim().toLowerCase();
+    if (reg) {
+      const bad = f.get('n').trim().split(/\s+/).length < 2 ? 'Escribe tu nombre y apellido.'
+        : !/^\d{7,15}$/.test(f.get('t').replace(/[\s()+-]/g, '')) ? 'Escribe un teléfono válido, por ejemplo 0424 1234567.' : '';
+      if (bad) { go.disabled = false; return say(bad) }
+    }
     const r = reg
       ? await sb.auth.signUp({ email, password: f.get('p'), options: { data: { full_name: f.get('n').trim(), phone: f.get('t').trim(), address: f.get('d').trim(), extra_id: (f.get('x') || '').trim() } } })
       : await sb.auth.signInWithPassword({ email, password: f.get('p') });
     go.disabled = false;
     if (r.error) return say(msgErr(r.error));
-    if (reg && !r.data.session) say('Te enviamos un correo para confirmar tu cuenta. Ábrelo y luego entra con "Ya tengo cuenta".', true);
+    if (reg && !r.data.session) say('Tu cuenta se creó, pero aún no está activada. Escríbenos por WhatsApp y la activamos.', true);
   };
   if (!reg) $('#fg').onclick = async () => {
     const m = prompt('¿Con qué correo te registraste?'); if (!m) return;
@@ -189,13 +245,13 @@ async function home() {
   const n = cur ? cur.stamps_count : 0, req = cur ? cur.stamps_required : S.ver.stamps_required, rw = (cur && cur.reward_name) || S.ver.reward_name;
   let seen = 0; try { seen = +localStorage.getItem('cs' + S.uid) || 0; localStorage.setItem('cs' + S.uid, n) } catch { }
   const list = (t.data || []).map(x => `<div class="row"><span>${x.kind == 'earn' ? 'Sello agregado' : 'Sello corregido'}</span><span>${fmt(x.created_at)}</span></div>`).join('');
-  T(`<header class="hero"><div>${logo()}<h1>Hola, ${esc(S.me.full_name.split(' ')[0])}</h1></div></header>
+  T(`<header class="hero"><div>${logo()}<h1>Hola, ${esc(S.me.full_name.split(' ')[0])}</h1></div>${tick()}</header>
 <div class="wrap pull">${card({ programName: S.set.program_name, name: S.me.full_name, stamps: n, required: req, reward: rw, pop: n > seen })}
 ${won ? `<p class="sm">Premios canjeados: <b>${won}</b></p>` : ''}
 <button class="btn" id="rf">Actualizar mi tarjeta</button>
 <h3>Mis últimos sellos</h3>${list || '<p class="sm">Cuando hagas tu primer pedido, aquí verás tus sellos.</p>'}
 <button class="btn alt" id="out">Cerrar sesión</button></div>`);
-  $('#rf').onclick = home; $('#out').onclick = () => sb.auth.signOut();
+  $('#rf').onclick = home; $('#out').onclick = () => sb.auth.signOut(); party();
 }
 
 /* ======================= PANEL: personal de Cochi ======================= */
@@ -242,6 +298,7 @@ ${done ? `<button class="btn" id="rd">Entregar premio${rw ? ': ' + esc(rw) : ''}
 ${last ? '<button class="btn alt" id="un">Quitar el último sello</button>' : ''}
 <p id="e"></p><h3>Movimientos de esta tarjeta</h3>
 ${tx.map(x => `<div class="row"><span>${x.kind == 'earn' ? '+1' : '−1'} ${esc(x.order_ref || x.note || '')}</span><span>${fmt(x.created_at)}</span></div>`).join('') || '<p class="sm">Todavía no tiene sellos.</p>'}`;
+  party();
   const run = async (fn, args, msg) => {
     const { error } = await sb.rpc(fn, args);
     if (error) return say(error.message);
@@ -303,16 +360,67 @@ function invite() {
   } catch { $('#qr').textContent = 'No se pudo dibujar el QR. Pega el link en cualquier generador de QR gratuito.' }
 }
 
+/* ======================= Animaciones: entrada, introducción y confeti ======================= */
+const wait = ms => new Promise(r => setTimeout(r, ms));
+const seen = () => { try { return localStorage.getItem('cintro') } catch { return 1 } };
+const tick = () => `<aside class="tick" aria-hidden="true"><div>${`<span>${esc(S.set.program_name)} ✦ Pide ✦ Sella ✦ Gana ✦</span>`.repeat(8)}</div></aside>`;
+
+function splash() { // pantalla roja de Cochi que aparece al abrir el link o escanear el QR
+  const d = document.createElement('div'); d.id = 'sp';
+  d.innerHTML = '<img class="wm" src="brand/isotipo-crema.png" alt=""><div class="st"><img class="spi" src="brand/isotipo-crema.png" alt=""><img class="spl" src="brand/logotipo-crema.png" alt="Cochi"><div class="spn" id="spn"></div></div><div class="spb"></div>';
+  document.body.append(d); document.body.classList.add('hold');
+}
+async function endSplash() {
+  const d = $('#sp');
+  if (!d) { document.body.classList.remove('hold'); return }
+  $('#spn').textContent = (S.set?.program_name || 'Club').replace(/^cochi\s+/i, '') || 'Club';
+  d.classList.add('show'); await wait(1000);
+  d.classList.add('out'); document.body.classList.remove('hold'); await wait(800); d.remove();
+}
+function party() { // confeti pequeño cuando una tarjeta se completa
+  const c = document.querySelector('.card.win'); if (!c) return;
+  const r = c.getBoundingClientRect(), cols = ['#EB140C', '#E6E0BF', '#FFD166', '#1F1A17'];
+  for (let k = 0; k < 22; k++) {
+    const i = document.createElement('i'), a = Math.random() * 6.28, d = 70 + Math.random() * 110; i.className = 'cf';
+    i.style.cssText = `left:${r.left + r.width / 2}px;top:${r.top + 120}px;background:${cols[k % 4]};--x:${Math.cos(a) * d}px;--y:${Math.sin(a) * d - 60}px;--r:${Math.random() * 720 - 360}deg`;
+    document.body.append(i); setTimeout(() => i.remove(), 2200);
+  }
+}
+function intro() { // 3 pantallas que explican cómo funciona (solo la primera vez en ese teléfono)
+  const n = S.ver.stamps_required, rw = S.ver.reward_name;
+  const sl = [
+    ['<img class="bob" src="brand/isotipo-crema.png" width="96" alt="">', 'Pide como siempre', 'Haz tu pedido en Cochi igual que hoy. Ahora cada pedido te acerca a un premio.'],
+    [`<div class="mini">${[0, 1, 2, 3].map(k => `<b style="--k:${k}">✓</b>`).join('')}</div>`, 'Gana un sello', 'Por cada pedido te agregamos un sello a tu tarjeta. Tú no tienes que hacer nada.'],
+    ['<div class="big bob">🎁</div>', 'Completa y canjea', `Al juntar ${n} sellos ${rw ? 'ganas: <b>' + esc(rw) + '</b>' : 'desbloqueas tu premio'}. Avísanos en tu pedido y lo canjeas.`]];
+  let i = 0;
+  T(`<div class="intro"><button class="lnk isk" id="sk">Saltar</button><div class="trk" id="tr">${sl.map(x => `<div class="sl"><div>${x[0]}</div><h2>${x[1]}</h2><p>${x[2]}</p></div>`).join('')}</div>
+<div class="dots" id="dt">${sl.map(() => '<i></i>').join('')}</div><div class="ibt"><button class="btn inv" id="nx">Siguiente</button><button class="lnk" id="hv" hidden>Ya tengo cuenta</button></div></div>`);
+  const ss = [...document.querySelectorAll('.sl')], dd = [...document.querySelectorAll('#dt i')];
+  const show = () => {
+    $('#tr').style.transform = `translateX(-${i * 100}%)`;
+    ss.forEach((x, k) => x.classList.toggle('on', k == i)); dd.forEach((x, k) => x.classList.toggle('a', k == i));
+    $('#nx').textContent = i == ss.length - 1 ? 'Crear mi tarjeta' : 'Siguiente'; $('#hv').hidden = i < ss.length - 1;
+  };
+  const end = m => { try { localStorage.setItem('cintro', 1) } catch { } welcome(m) };
+  $('#nx').onclick = () => i < ss.length - 1 ? (i++, show()) : end('reg');
+  $('#sk').onclick = () => end('reg'); $('#hv').onclick = () => end('in'); show();
+}
+
 /* ======================= Arranque ======================= */
 async function boot() {
   if (S.rec) return;
-  T('<p class="load">Cargando…</p>');
+  const first = !S.splashed && !matchMedia('(prefers-reduced-motion:reduce)').matches; S.splashed = true;
+  if (first) splash(); else T('<p class="load">Cargando…</p>');
+  await Promise.all([route(), first ? wait(1300) : 0]);
+  endSplash();
+}
+async function route() {
   try { await load() } catch (e) { return T(`<div class="wrap"><h2>No pudimos conectar</h2><p>${esc(e.message)}</p><p class="sm">Revisa que la URL y la clave estén bien pegadas y que ya ejecutaste el archivo 1-base-de-datos.sql.</p></div>`) }
   applyTheme();
-  if (!S.uid) return welcome();
+  if (!S.uid) return seen() ? welcome() : intro();
   const { data: me } = await sb.from('profiles').select('*').eq('id', S.uid).single();
   if (!me || me.suspended) return T(`<div class="wrap"><h2>Cuenta en pausa</h2><p>Escríbenos por WhatsApp y lo resolvemos.</p><button class="btn alt" id="out">Cerrar sesión</button></div>`), $('#out').onclick = () => sb.auth.signOut();
-  S.me = me; me.role == 'customer' ? home() : admin();
+  S.me = me; await (me.role == 'customer' ? home() : admin());
 }
 sb.auth.onAuthStateChange((ev, s) => {
   if (ev == 'PASSWORD_RECOVERY') return setTimeout(newPass, 0);
