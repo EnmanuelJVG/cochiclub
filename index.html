@@ -26,7 +26,7 @@ input:focus,textarea:focus,button:focus-visible{outline:3px solid var(--p);outli
 input[type=color]{padding:4px}
 .ck{display:flex;gap:10px;align-items:center;font-weight:600}.ck input{width:26px;min-height:26px}
 .btn{display:block;width:100%;min-height:54px;margin-top:16px;border:0;border-radius:16px;background:var(--p);color:var(--bg);font:900 1rem var(--f);cursor:pointer}
-.btn.alt{background:none;color:var(--tx);border:2px solid var(--tx)}.btn:disabled{opacity:.5}
+.btn.alt{background:none;color:var(--tx);border:2px solid var(--tx)}.btn.danger{background:#8f211d;color:#fff}.btn:disabled{opacity:.5}
 .lnk{background:none;border:0;color:inherit;text-decoration:underline;font:700 .95rem var(--f);min-height:48px;padding:0;cursor:pointer}
 .err,.ok{background:#fff;padding:8px 12px;border-radius:10px;font-weight:700;margin:12px 0 0}.err{color:#b00020}.ok{color:#176b2c}.err:empty,.ok:empty{display:none}
 .tabs{display:flex;gap:8px;margin:20px 0 4px}
@@ -272,17 +272,44 @@ function clients() {
   let tm;
   const run = async () => {
     const t = $('#q').value.replace(/[,()%*]/g, ' ').trim();
-    let q = sb.from('profiles').select('id,full_name,phone').eq('role', 'customer').eq('approved', true).eq('suspended', false).order('created_at', { ascending: false }).limit(15);
-    if (t) q = q.or(`full_name.ilike.*${t}*,phone.ilike.*${t}*,email.ilike.*${t}*`);
-    const { data, error } = await q;
-    $('#res').innerHTML = error ? `<p class="err">${esc(error.message)}</p>`
-      : data.length ? data.map(p => `<button class="row" data-id="${p.id}"><b>${esc(p.full_name)}</b><span>${esc(p.phone || '')}</span></button>`).join('')
-      : '<p class="sm">No encontramos clientes aprobados con esa búsqueda.</p>';
+    const query = suspended => {
+      let q = sb.from('profiles').select('id,full_name,phone,email')
+        .eq('role', 'customer').eq('suspended', suspended)
+        .order('created_at', { ascending: false }).limit(100);
+      if (!suspended) q = q.eq('approved', true);
+      if (t) q = q.or(`full_name.ilike.*${t}*,phone.ilike.*${t}*,email.ilike.*${t}*`);
+      return q;
+    };
+    const [activeRes, suspendedRes] = await Promise.all([
+      query(false),
+      S.me.role == 'admin' ? query(true) : Promise.resolve({ data: [], error: null })
+    ]);
+    if (activeRes.error || suspendedRes.error) {
+      $('#res').innerHTML = `<p class="err">${esc((activeRes.error || suspendedRes.error).message)}</p>`;
+      return;
+    }
+    const active = activeRes.data || [], suspended = suspendedRes.data || [];
+    const activeHtml = active.length
+      ? active.map(p => `<div class="row" style="align-items:center;flex-wrap:wrap">
+          <button type="button" class="lnk" data-id="${p.id}" style="flex:1;min-width:120px;text-align:left;text-decoration:none"><b>${esc(p.full_name)}</b></button>
+          <span>${esc(p.phone || '')}</span>
+          ${S.me.role == 'admin' ? `<button type="button" class="btn danger" data-delete-customer="${p.id}" data-customer-name="${esc(p.full_name)}" style="width:auto;min-height:44px;margin:0;padding:0 12px;white-space:nowrap">Eliminar</button>` : ''}
+        </div>`).join('')
+      : '<p class="sm">No encontramos clientes activos con esa búsqueda.</p>';
+    const suspendedHtml = S.me.role == 'admin' ? `
+      <h3>Clientes suspendidos</h3>
+      <p class="sm">También puedes eliminar desde aquí una cuenta que hayas suspendido anteriormente.</p>
+      ${suspended.length ? suspended.map(p => `
+        <div class="row" style="align-items:center;flex-wrap:wrap">
+          <div style="min-width:0;flex:1"><b>${esc(p.full_name)}</b><div class="sm">${esc(p.email || 'Sin correo')} · ${esc(p.phone || 'Sin teléfono')}</div></div>
+          <button class="btn danger" data-delete-customer="${p.id}" data-customer-name="${esc(p.full_name)}" style="width:auto;min-height:44px;margin:0;padding:0 14px;white-space:nowrap">Eliminar</button>
+        </div>`).join('') : '<p class="sm">No hay clientes suspendidos.</p>'}` : '';
+    $('#res').innerHTML = `<h3>Clientes</h3>${activeHtml}${suspendedHtml}`;
     document.querySelectorAll('[data-id]').forEach(b => b.onclick = () => customer(b.dataset.id));
+    document.querySelectorAll('[data-delete-customer]').forEach(b => b.onclick = () => deleteCustomer(b.dataset.deleteCustomer, b.dataset.customerName, b));
   };
   $('#q').oninput = () => { clearTimeout(tm); tm = setTimeout(run, 300) }; run();
 }
-
 async function pending() {
   $('#v').innerHTML = `<h2 style="margin-top:12px">Solicitudes de acceso</h2><p class="sm">Aprueba aquí a los clientes que se registraron desde su invitación. Solo el administrador puede autorizar el acceso.</p><div id="pending-list"><p class="sm">Cargando solicitudes…</p></div>`;
   const { data, error } = await sb.from('profiles')
@@ -294,14 +321,18 @@ async function pending() {
     return;
   }
   $('#pending-list').innerHTML = data.length ? data.map(p => `
-    <div class="row" style="align-items:center">
+    <div class="row" style="align-items:center;flex-wrap:wrap">
       <div style="min-width:0;flex:1">
         <b>${esc(p.full_name)}</b>
         <div class="sm">${esc(p.email || 'Sin correo')} · ${esc(p.phone || 'Sin teléfono')}</div>
         <div class="sm">Registro: ${esc(fmt(p.created_at))}</div>
       </div>
-      <button class="btn" data-approve="${p.id}" style="width:auto;min-height:44px;margin:0;padding:0 14px;white-space:nowrap">Aprobar</button>
+      <div style="display:flex;gap:8px;flex-wrap:wrap">
+        <button class="btn" data-approve="${p.id}" style="width:auto;min-height:44px;margin:0;padding:0 14px;white-space:nowrap">Aprobar</button>
+        <button class="btn danger" data-delete-customer="${p.id}" data-customer-name="${esc(p.full_name)}" style="width:auto;min-height:44px;margin:0;padding:0 14px;white-space:nowrap">Eliminar</button>
+      </div>
     </div>`).join('') : '<p class="sm">No hay solicitudes pendientes. ¡Todo al día!</p>';
+  document.querySelectorAll('[data-delete-customer]').forEach(b => b.onclick = () => deleteCustomer(b.dataset.deleteCustomer, b.dataset.customerName, b));
   document.querySelectorAll('[data-approve]').forEach(b => b.onclick = async () => {
     if (!confirm('¿Aprobar el acceso de este cliente?')) return;
     b.disabled = true;
@@ -333,7 +364,8 @@ ${done ? `<button class="btn" id="rd">Entregar premio${rw ? ': ' + esc(rw) : ''}
     : `<label>Número de pedido (opcional)<input id="ref"></label><button class="btn" id="ad">Agregar sello</button>`}
 ${last ? '<button class="btn alt" id="un">Quitar el último sello</button>' : ''}
 <p id="e"></p><h3>Movimientos de esta tarjeta</h3>
-${tx.map(x => `<div class="row"><span>${x.kind == 'earn' ? '+1' : '−1'} ${esc(x.order_ref || x.note || '')}</span><span>${fmt(x.created_at)}</span></div>`).join('') || '<p class="sm">Todavía no tiene sellos.</p>'}`;
+${tx.map(x => `<div class="row"><span>${x.kind == 'earn' ? '+1' : '−1'} ${esc(x.order_ref || x.note || '')}</span><span>${fmt(x.created_at)}</span></div>`).join('') || '<p class="sm">Todavía no tiene sellos.</p>'}
+${S.me.role == 'admin' ? '<h3>Administración de cuenta</h3><p class="sm">Eliminar la cuenta quita su acceso y su ficha de perfil. El historial de tarjetas y movimientos se conserva asociado al identificador anterior.</p><button class="btn danger" id="del-customer">Eliminar cliente definitivamente</button>' : ''}`;
   party();
   const run = async (fn, args, msg) => {
     const { error } = await sb.rpc(fn, args);
@@ -346,6 +378,28 @@ ${tx.map(x => `<div class="row"><span>${x.kind == 'earn' ? '+1' : '−1'} ${esc(
   if ($('#rd')) $('#rd').onclick = () => confirm(`¿Entregar el premio a ${pr.full_name}? Esto no se puede deshacer.`) &&
     run('redeem_reward', { p_card_id: cur.id }, 'Premio entregado ✔');
   if ($('#un')) $('#un').onclick = () => { const why = prompt('¿Por qué quitas este sello?'); if (why) run('reverse_stamp', { p_tx_id: last.id, p_request_id: crypto.randomUUID(), p_reason: why }, 'Sello quitado') };
+  if ($('#del-customer')) $('#del-customer').onclick = () => deleteCustomer(id, pr.full_name, $('#del-customer'));
+}
+
+async function deleteCustomer(id, fullName, button) {
+  if (S.me?.role !== 'admin') return alert('Solo un administrador puede eliminar clientes.');
+  const name = String(fullName || 'este cliente');
+  if (!confirm(`Vas a eliminar definitivamente la cuenta de ${name}.
+
+Se eliminarán su acceso y su ficha de perfil. El historial de tarjetas y sellos se conservará asociado al identificador anterior. Esta acción no se puede deshacer.`)) return;
+  const typed = prompt(`Para confirmar, escribe ELIMINAR.
+
+Cliente: ${name}`);
+  if (typed !== 'ELIMINAR') return;
+  if (button) { button.disabled = true; button.textContent = 'Eliminando…' }
+  const { error } = await sb.rpc('delete_customer', { p_customer: id });
+  if (error) {
+    if (button) { button.disabled = false; button.textContent = button.id == 'del-customer' ? 'Eliminar cliente definitivamente' : 'Eliminar' }
+    alert('No se pudo eliminar el cliente: ' + error.message);
+    return;
+  }
+  toast('Cliente eliminado ✔');
+  admin('c');
 }
 
 function settings() {

@@ -6,6 +6,8 @@ La app sigue siendo una página ligera (`index.html`) más la carpeta `brand`. U
 
 Ahora los registros nuevos quedan **pendientes de aprobación**. El cliente abre el QR, crea su cuenta y ve un aviso de que su solicitud está pendiente. Desde el panel, el usuario con rol `admin` tiene una pestaña **Pendientes** y puede aprobar el acceso con un botón. Los usuarios `staff` pueden gestionar clientes y sellos, pero no aprobar cuentas.
 
+Además, el administrador puede **eliminar clientes directamente desde el panel**: desde la ficha de un cliente aprobado o desde la lista de solicitudes pendientes. La acción pide dos confirmaciones. El acceso de Auth y el perfil se eliminan; las tarjetas, movimientos y auditorías se conservan como registros históricos sin un perfil de cliente activo. Las cuentas `admin` y `staff` no se pueden eliminar desde esta opción.
+
 No hay una integración con WhatsApp ni se envían códigos por WhatsApp.
 
 ## Paso 1 · Actualizar la base de datos
@@ -18,7 +20,15 @@ Si ya tienes Cochi Club funcionando, **no vuelvas a ejecutar** `1-base-de-datos.
 
 Si vas a crear el proyecto desde cero, ejecuta primero `1-base-de-datos.sql` y después `2-aprobacion-desde-panel.sql`.
 
-## Paso 2 · Configurar el registro por correo
+## Paso 2 · Activar la eliminación desde el panel
+
+Si Cochi Club ya está funcionando con las migraciones 0001 y 0002, ejecuta **una sola vez** el archivo `3-eliminar-cliente-desde-panel.sql` en Supabase → SQL Editor → New query. Esta migración elimina las referencias obligatorias al perfil desde `customer_id` en tarjetas y movimientos, para que la cuenta de Auth pueda borrarse sin destruir el historial. No vuelvas a ejecutar los archivos 1 o 2.
+
+Después, publica el `index.html` actualizado y conserva la carpeta `brand`. El botón aparece en la ficha de clientes aprobados y en cada solicitud pendiente. Solo lo ve el administrador.
+
+**Importante:** antes de ejecutar una migración de base de datos, es recomendable tener una copia de seguridad. El botón borra la cuenta de acceso y el perfil, pero deja los registros históricos vinculados al UUID anterior; no es un mecanismo para borrar auditorías.
+
+## Paso 3 · Configurar el registro por correo
 
 En Supabase abre **Authentication → Sign In / Providers → Email** (el nombre puede variar ligeramente en el panel) y desactiva **Confirm Email**.
 
@@ -26,7 +36,7 @@ Esto permite que el cliente cree su cuenta e inicie sesión sin esperar un enlac
 
 **Importante:** al desactivar la confirmación, Supabase deja de comprobar que el usuario sea dueño de ese correo. Por eso, revisa los datos de cada solicitud antes de pulsar **Aprobar**. Si necesitas verificar que cada correo pertenece realmente al cliente, mantén la confirmación por email y no uses el acceso sin verificar.
 
-## Paso 3 · Comprobar el administrador
+## Paso 4 · Comprobar el administrador
 
 En Supabase → **SQL Editor**, comprueba que tu correo tenga el rol `admin` y aprobación habilitada. Cambia el correo de ejemplo:
 
@@ -46,7 +56,7 @@ where email = 'personal@ejemplo.com';
 
 No asignes el rol `admin` a clientes. La aprobación de clientes desde la web solo aparece para administradores.
 
-## Paso 4 · Publicar la página
+## Paso 5 · Publicar la página
 
 Sustituye en tu hosting el `index.html` y la carpeta `brand` por los de esta versión. Conserva los mismos valores de `SUPABASE_URL` y `SUPABASE_KEY` que ya tiene tu proyecto.
 
