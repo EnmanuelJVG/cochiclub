@@ -1,57 +1,74 @@
-# Cochi Club — cómo ponerlo en línea (unos 20 minutos)
+# Cochi Club — cómo configurar y actualizar la página
 
-La app es **un solo archivo (`index.html`)** más la carpeta `brand` con los logos. No hay que instalar nada.
-Necesitas dos servicios gratuitos: **Supabase** (guarda clientes y sellos) y un sitio donde subir la carpeta (**Netlify**, Vercel o GitHub Pages).
+La app sigue siendo una página ligera (`index.html`) más la carpeta `brand`. Usa Supabase para las cuentas, clientes y tarjetas.
 
-## Paso 1 · Crear la base de datos
-1. Entra a **supabase.com**, crea una cuenta y pulsa **New project**. Guarda la contraseña que te pida.
-2. Cuando termine de crearse, abre **SQL Editor → New query**.
-3. Abre el archivo `1-base-de-datos.sql`, copia **todo** su contenido, pégalo y pulsa **Run**. Debe decir que terminó sin errores.
-4. Entra a **Authentication**, busca la configuración de **Email** y **apaga «Confirm email»**. Así los clientes entran apenas se registran.
+## Qué cambia con esta versión
 
-## Paso 2 · Conectar la app (2 datos)
-1. En Supabase abre **Project Settings → API Keys** (también sirve el botón **Connect** de arriba).
-2. Copia la **Project URL** y la **Publishable key** (empieza por `sb_publishable_`).
-3. Abre `index.html` con el Bloc de notas y reemplaza en las dos líneas marcadas:
-   - `PEGA_AQUI_TU_URL` por tu URL
-   - `PEGA_AQUI_TU_CLAVE` por tu clave
+Ahora los registros nuevos quedan **pendientes de aprobación**. El cliente abre el QR, crea su cuenta y ve un aviso de que su solicitud está pendiente. Desde el panel, el usuario con rol `admin` tiene una pestaña **Pendientes** y puede aprobar el acceso con un botón. Los usuarios `staff` pueden gestionar clientes y sellos, pero no aprobar cuentas.
 
-La clave *publishable* está hecha para ser pública: la seguridad la dan las reglas del paso 1, no ocultar la clave. **Nunca pegues la clave «secret» ni «service_role».**
+No hay una integración con WhatsApp ni se envían códigos por WhatsApp.
 
-## Paso 3 · Subir la carpeta
-Sube la carpeta completa `cochi-club` (con `index.html` y `brand`) a **Netlify** (busca la opción de arrastrar una carpeta para publicarla) o a Vercel / GitHub Pages. Te darán un link tipo `https://tu-sitio.netlify.app`. Ese es el link de Cochi Club.
+## Paso 1 · Actualizar la base de datos
 
-Luego, en Supabase: **Authentication → URL Configuration → Site URL**, pega ese link. Sirve para que funcione «Olvidé mi contraseña».
+Si ya tienes Cochi Club funcionando, **no vuelvas a ejecutar** `1-base-de-datos.sql`: ese archivo crea las tablas iniciales.
 
-## Paso 4 · Crear tu usuario administrador
-1. Abre tu link y **crea una cuenta con el correo del negocio** (como si fueras cliente).
-2. En Supabase, **SQL Editor**, ejecuta esto cambiando el correo:
+1. Entra a Supabase → **SQL Editor** → **New query**.
+2. Abre `2-aprobacion-desde-panel.sql`, copia todo su contenido y ejecútalo una sola vez.
+3. La migración añade el campo de aprobación y una función segura que solo permite aprobar a una cuenta administradora autorizada. No borra clientes, tarjetas ni sellos.
+
+Si vas a crear el proyecto desde cero, ejecuta primero `1-base-de-datos.sql` y después `2-aprobacion-desde-panel.sql`.
+
+## Paso 2 · Configurar el registro por correo
+
+En Supabase abre **Authentication → Sign In / Providers → Email** (el nombre puede variar ligeramente en el panel) y desactiva **Confirm Email**.
+
+Esto permite que el cliente cree su cuenta e inicie sesión sin esperar un enlace de confirmación. La aprobación del negocio queda separada y la controla el panel de Cochi Club.
+
+**Importante:** al desactivar la confirmación, Supabase deja de comprobar que el usuario sea dueño de ese correo. Por eso, revisa los datos de cada solicitud antes de pulsar **Aprobar**. Si necesitas verificar que cada correo pertenece realmente al cliente, mantén la confirmación por email y no uses el acceso sin verificar.
+
+## Paso 3 · Comprobar el administrador
+
+En Supabase → **SQL Editor**, comprueba que tu correo tenga el rol `admin` y aprobación habilitada. Cambia el correo de ejemplo:
 
 ```sql
-update public.profiles set role = 'admin' where email = 'correo-del-negocio@ejemplo.com';
+update public.profiles
+set role = 'admin', approved = true
+where email = 'correo-del-negocio@ejemplo.com';
 ```
 
-3. Cierra sesión y vuelve a entrar con ese correo y contraseña: ahora verás el **panel**.
+Para una cuenta interna que solo pone sellos, usa:
 
-Para personal que solo pone sellos (sin poder cambiar ajustes), igual: que se registren y ejecuta lo mismo con `role = 'staff'`.
-Usa un correo distinto al tuyo personal de cliente: las cuentas de administración no tienen tarjeta.
+```sql
+update public.profiles
+set role = 'staff', approved = true
+where email = 'personal@ejemplo.com';
+```
 
-## Uso diario
-- **Clientes:** busca por nombre, teléfono o correo → abre al cliente → **Agregar sello**. Si pone el número de pedido, no se puede dar dos sellos por el mismo pedido. Si te equivocas: **Quitar el último sello** (pide motivo y queda registrado).
-- **Premio:** cuando la tarjeta se completa aparece **Entregar premio**. Un premio solo se entrega una vez; después el cliente empieza una tarjeta nueva.
-- **Ajustes:** cantidad de sellos, premio, tema (Cochi, Halloween, Navidad, San Valentín, Cochi Dulce), colores, icono y textos. La vista previa cambia mientras editas; no se aplica hasta **Guardar cambios**.
-- **Invitar:** link de registro y QR para imprimir o enviar.
+No asignes el rol `admin` a clientes. La aprobación de clientes desde la web solo aparece para administradores.
 
-## Importante saber
-- **Cambiar sellos o premio vale para tarjetas nuevas.** Las que ya están empezadas conservan la regla con la que nacieron, para no cambiarle las reglas a un cliente a medias. Si aún no habías definido premio, esas tarjetas sí toman el que pongas.
-- Los movimientos de sellos no se pueden borrar ni editar (así hay historial confiable).
-- Para agregar otro tema (por ejemplo «Carnaval»), en `index.html` busca `PRESETS` y copia una de las líneas cambiando nombre, colores e icono.
+## Paso 4 · Publicar la página
 
-## Qué NO está todavía
-- Estadísticas, gráficos y exportación a CSV.
-- Escáner de QR de la tarjeta del cliente (por ahora se busca por nombre o teléfono).
-- Editar los datos personales desde la cuenta del cliente.
-- Suspender cuentas y borrar datos desde el panel (hoy se hace desde Supabase).
+Sustituye en tu hosting el `index.html` y la carpeta `brand` por los de esta versión. Conserva los mismos valores de `SUPABASE_URL` y `SUPABASE_KEY` que ya tiene tu proyecto.
 
-## Estado de las pruebas
-Se verificó que el código JavaScript no tiene errores de sintaxis. **No se pudo probar contra una base de datos real ni en un teléfono** porque mi entorno no tiene internet. Después del paso 4, haz esta prueba rápida con dos teléfonos o dos navegadores: registra un cliente, agrégale un sello desde el panel, y mira que aparezca en su tarjeta al pulsar «Actualizar mi tarjeta».
+No publiques una clave `secret` ni `service_role` en el navegador. La clave `sb_publishable_` es la que debe quedar en `index.html`.
+
+## Cómo será el proceso a partir de ahora
+
+1. El cliente escanea el QR y crea su cuenta.
+2. Puede iniciar sesión, pero solo verá **Solicitud recibida** mientras esté pendiente.
+3. Tú entras con tu correo administrador y abres **Pendientes**.
+4. Revisas nombre, correo y teléfono y pulsas **Aprobar**.
+5. El cliente vuelve a entrar y ya puede ver su tarjeta.
+
+Cada aprobación queda registrada en el historial administrativo de Supabase. Si se suspende una cuenta, la suspensión sigue bloqueando el acceso.
+
+## Notas importantes
+
+- Las cuentas existentes cuyo correo o teléfono ya estaba confirmado conservan el acceso. Los registros anteriores que no estaban confirmados quedan en la lista de pendientes para revisión.
+- La pestaña **Pendientes** solo aparece para `admin`; `staff` no puede aprobar cuentas.
+- El panel no necesita una clave secreta de Supabase en el navegador.
+- Las demás funciones de Cochi Club (sellos, premios, temas, invitaciones y recuperación de contraseña) se mantienen.
+
+## Funciones que todavía no incluye
+
+Estadísticas, gráficos, exportación CSV y escáner de QR de la tarjeta del cliente.
